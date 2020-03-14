@@ -537,8 +537,9 @@ public final class WorthManager implements PluginService {
      * @param factionId the ID of the faction to remove.
      */
     public void remove(String factionId) {
-        FactionWorth factionWorth = factions.remove(factionId);
-        orderedFactions.remove(factionWorth);
+        FactionWorth worth = getFactionWorth(factionId);
+        factions.remove(factionId);
+        orderedFactions.remove(worth);
         plugin.getPersistenceTask().queueDeletedFaction(factionId);
     }
 }
