@@ -55,16 +55,18 @@ public class DelayedSpawners implements PluginService {
 	}
 
 	private void validateEntries() {
-		Iterator<Map.Entry<DelayedSpawner, Long>> it = activationMap.entrySet().iterator();
+		synchronized (activationMap) {
+			Iterator<Map.Entry<DelayedSpawner, Long>> it = activationMap.entrySet().iterator();
 
-		while (it.hasNext()) {
-			Map.Entry<DelayedSpawner, Long> entry = it.next();
+			while (it.hasNext()) {
+				Map.Entry<DelayedSpawner, Long> entry = it.next();
 
-			if (entry.getValue() > System.currentTimeMillis())
-				break;
+				if (entry.getValue() > System.currentTimeMillis())
+					break;
 
-			validate(entry.getKey());
-			it.remove();
+				validate(entry.getKey());
+				it.remove();
+			}
 		}
 	}
 
@@ -114,14 +116,18 @@ public class DelayedSpawners implements PluginService {
 	private void save() {
 		File file = new File(plugin.getDataFolder(), "delayedspawners.yml");
 
-		List<String> strings = activationMap.entrySet().stream().map(entry -> {
-			DelayedSpawner spawner = entry.getKey();
-			BlockPos pos = spawner.getPos();
-			return Stream.of(
-					entry.getValue(), pos.getX(), pos.getY(), pos.getZ(),
-					pos.getWorld(), spawner.getEntityType().name()
-			).map(String::valueOf).collect(Collectors.joining(","));
-		}).collect(Collectors.toList());
+		List<String> strings = null;
+
+		synchronized (activationMap) {
+			strings = activationMap.entrySet().stream().map(entry -> {
+				DelayedSpawner spawner = entry.getKey();
+				BlockPos pos = spawner.getPos();
+				return Stream.of(
+						entry.getValue(), pos.getX(), pos.getY(), pos.getZ(),
+						pos.getWorld(), spawner.getEntityType().name()
+				).map(String::valueOf).collect(Collectors.joining(","));
+			}).collect(Collectors.toList());
+		}
 
 		YamlConfiguration config = new YamlConfiguration();
 		config.set("list", strings);
