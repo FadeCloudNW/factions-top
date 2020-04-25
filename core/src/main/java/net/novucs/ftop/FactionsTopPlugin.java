@@ -2,7 +2,6 @@ package net.novucs.ftop;
 
 import com.google.common.collect.Multimap;
 import net.novucs.ftop.command.*;
-import net.novucs.ftop.delayedspawners.DelayedSpawners;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChunkPos;
 import net.novucs.ftop.entity.ChunkWorth;
@@ -16,6 +15,7 @@ import net.novucs.ftop.manager.DatabaseManager;
 import net.novucs.ftop.manager.GuiManager;
 import net.novucs.ftop.manager.SignManager;
 import net.novucs.ftop.manager.WorthManager;
+import net.novucs.ftop.newdelayedspawners.NewDelayedSpawners;
 import net.novucs.ftop.replacer.LastReplacer;
 import net.novucs.ftop.replacer.PlayerReplacer;
 import net.novucs.ftop.replacer.RankReplacer;
@@ -50,11 +50,10 @@ public final class FactionsTopPlugin extends JavaPlugin {
     private final Settings settings = new Settings(this);
     private final SignManager signManager = new SignManager(this);
     private final WorthManager worthManager = new WorthManager(this);
-    private final DelayedSpawners delayedSpawners = new DelayedSpawners(this);
+    private final NewDelayedSpawners delayedSpawners = new NewDelayedSpawners(this);
     private final Set<PluginService> services = new HashSet<>(Arrays.asList(
             signManager,
             worthManager,
-            delayedSpawners,
             new GuiCommand(this),
             new RecalculateCommand(this),
             new ReloadCommand(this),
@@ -64,7 +63,8 @@ public final class FactionsTopPlugin extends JavaPlugin {
             new CommandListener(this),
             new GuiListener(this),
             new WorthListener(this),
-            new FactionsTopLogger(this)
+            new FactionsTopLogger(this),
+            delayedSpawners
     ));
 
     private boolean active;
@@ -99,8 +99,12 @@ public final class FactionsTopPlugin extends JavaPlugin {
         return worthManager;
     }
 
-    public DelayedSpawners getDelayedSpawners() {
-        return delayedSpawners;
+//    public DelayedSpawners getDelayedSpawners() {
+//        return delayedSpawners;
+//    }
+
+    public NewDelayedSpawners getNewDelayedSpawners() {
+        return this.delayedSpawners;
     }
 
     public CraftbukkitHook getCraftbukkitHook() {

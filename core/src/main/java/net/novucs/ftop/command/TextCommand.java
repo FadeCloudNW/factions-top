@@ -100,6 +100,9 @@ public class TextCommand implements CommandExecutor, PluginService {
             worthPlaceholders.put("{worth:total}", plugin.getSettings().getCurrencyFormat().format(worth.getTotalWorth()));
             worthPlaceholders.put("{count:total:spawner}", plugin.getSettings().getCountFormat().format(worth.getTotalSpawnerCount()));
 
+            double potentialWorth = plugin.getNewDelayedSpawners().getPotentialWorth(worth.getFactionId());
+            worthPlaceholders.put("{worth:potential}", plugin.getSettings().getCurrencyFormat().format(potentialWorth));
+
             String bodyMessage = insertPlaceholders(plugin.getSettings(), worth, replace(plugin.getSettings().getBodyMessage(), worthPlaceholders));
             List<String> tooltip = insertPlaceholders(plugin.getSettings(), worth, replace(plugin.getSettings().getBodyTooltip(), worthPlaceholders));
 

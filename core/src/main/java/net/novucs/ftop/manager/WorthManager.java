@@ -243,9 +243,11 @@ public final class WorthManager implements PluginService {
     public void add(Chunk chunk, RecalculateReason reason, WorthType worthType, double worth,
                     Map<Material, Integer> materials, Map<EntityType, Integer> spawners) {
         // Do nothing if worth type is disabled or worth is nothing.
-        if (!plugin.getSettings().isEnabled(worthType) || worth == 0) {
+        if (!plugin.getSettings().isEnabled(worthType))
             return;
-        }
+
+        if (worth == 0 && worthType != WorthType.SPAWNER)
+            return;
 
         // Do nothing if faction worth is null.
         ChunkPos pos = ChunkPos.of(chunk);
@@ -378,18 +380,14 @@ public final class WorthManager implements PluginService {
             }
 
             CreatureSpawner spawner = (CreatureSpawner) blockState;
-
-            if (plugin.getDelayedSpawners().isDelayed(spawner))
-                continue;
-
             EntityType spawnType = spawner.getSpawnedType();
-            int stackSize = plugin.getSpawnerStackerHook().getStackSize(spawner);
-            double blockPrice = plugin.getSettings().getSpawnerPrice(spawnType) * stackSize;
-            worth += blockPrice;
+            double currentWorth = plugin.getNewDelayedSpawners().getInstantaneousWorth(spawner);
 
-            if (blockPrice != 0) {
+            worth += currentWorth;
+
+            if (currentWorth != 0) {
                 count = spawners.getOrDefault(spawnType, 0);
-                spawners.put(spawnType, count + stackSize);
+                spawners.put(spawnType, count + 1);
             }
         }
 

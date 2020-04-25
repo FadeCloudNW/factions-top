@@ -5,7 +5,6 @@ import net.novucs.ftop.FactionsTopPlugin;
 import net.novucs.ftop.PluginService;
 import net.novucs.ftop.RecalculateReason;
 import net.novucs.ftop.WorthType;
-import net.novucs.ftop.delayedspawners.DelayedSpawners;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChestWorth;
 import net.novucs.ftop.hook.event.*;
@@ -65,7 +64,7 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockPlaceEvent event) {
         if (event.getBlock().getType() == Material.MOB_SPAWNER) {
-            plugin.getDelayedSpawners().queue((CreatureSpawner) event.getBlock().getState());
+            plugin.getNewDelayedSpawners().addSpawner((CreatureSpawner) event.getBlock().getState());
             return;
         }
 
@@ -74,31 +73,23 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockBreakEvent event) {
+        updateWorth(event.getBlock(), RecalculateReason.BREAK, true);
+
         if (event.getBlock().getType() == Material.MOB_SPAWNER) {
             CreatureSpawner spawner = (CreatureSpawner) event.getBlock().getState();
-
-            if (plugin.getDelayedSpawners().isDelayed(spawner)) {
-                plugin.getDelayedSpawners().removeFromQueue(spawner);
-                return;
-            }
+            plugin.getNewDelayedSpawners().removeSpawner(spawner);
         }
-
-        updateWorth(event.getBlock(), RecalculateReason.BREAK, true);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(EntityExplodeEvent event) {
         event.blockList().forEach(block -> {
+            updateWorth(block, RecalculateReason.EXPLODE, true);
+
             if (block.getType() == Material.MOB_SPAWNER) {
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
-
-                if (plugin.getDelayedSpawners().isDelayed(spawner)) {
-                    plugin.getDelayedSpawners().removeFromQueue(spawner);
-                    return;
-                }
+                plugin.getNewDelayedSpawners().removeSpawner(spawner);
             }
-
-            updateWorth(block, RecalculateReason.EXPLODE, true);
         });
     }
 
@@ -124,8 +115,7 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 worthType = WorthType.SPAWNER;
                 EntityType spawnedType = spawner.getSpawnedType();
-                multiplier *= plugin.getSpawnerStackerHook().getStackSize(spawner);
-                price = multiplier * plugin.getSettings().getSpawnerPrice(spawnedType);
+                price = multiplier * plugin.getNewDelayedSpawners().getInstantaneousWorth(spawner);
                 spawners.put(spawnedType, multiplier);
                 break;
             case CHEST:
