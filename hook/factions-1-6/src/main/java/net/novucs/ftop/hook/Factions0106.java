@@ -4,15 +4,14 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
-import com.massivecraft.factions.zcore.persist.MemoryBoard;
-import com.massivecraft.factions.zcore.persist.MemoryFactions;
+import com.massivecraft.factions.data.MemoryBoard;
+import com.massivecraft.factions.data.MemoryFactions;
 import net.novucs.ftop.entity.ChunkPos;
+import net.novucs.ftop.hook.event.*;
 import net.novucs.ftop.hook.event.FactionDisbandEvent;
 import net.novucs.ftop.hook.event.FactionRenameEvent;
-import net.novucs.ftop.hook.event.*;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.plugin.Plugin;
@@ -48,7 +47,7 @@ public class Factions0106 extends FactionsHook {
             factionsField.setAccessible(true);
             factions = (Map<String, Faction>) factionsField.get(Factions.getInstance());
             factionsField.setAccessible(false);
-        } catch (NoSuchFieldException | IllegalAccessException ex) {
+        } catch (NoSuchFieldException | IllegalAccessException | NoClassDefFoundError ex) {
             getPlugin().getLogger().severe("Factions version found is incompatible!");
             getPlugin().getServer().getPluginManager().disablePlugin(getPlugin());
             return;

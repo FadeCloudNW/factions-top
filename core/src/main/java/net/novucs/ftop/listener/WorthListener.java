@@ -63,34 +63,17 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockPlaceEvent event) {
-        if (event.getBlock().getType() == Material.MOB_SPAWNER) {
-            plugin.getNewDelayedSpawners().addSpawner((CreatureSpawner) event.getBlock().getState());
-            return;
-        }
-
         updateWorth(event.getBlock(), RecalculateReason.PLACE, false);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockBreakEvent event) {
         updateWorth(event.getBlock(), RecalculateReason.BREAK, true);
-
-        if (event.getBlock().getType() == Material.MOB_SPAWNER) {
-            CreatureSpawner spawner = (CreatureSpawner) event.getBlock().getState();
-            plugin.getNewDelayedSpawners().removeSpawner(spawner);
-        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(EntityExplodeEvent event) {
-        event.blockList().forEach(block -> {
-            updateWorth(block, RecalculateReason.EXPLODE, true);
-
-            if (block.getType() == Material.MOB_SPAWNER) {
-                CreatureSpawner spawner = (CreatureSpawner) block.getState();
-                plugin.getNewDelayedSpawners().removeSpawner(spawner);
-            }
-        });
+        event.blockList().forEach(block -> updateWorth(block, RecalculateReason.EXPLODE, true));
     }
 
     private void updateWorth(Block block, RecalculateReason reason, boolean negate) {
@@ -112,10 +95,11 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
 
         switch (block.getType()) {
             case MOB_SPAWNER:
-                CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 worthType = WorthType.SPAWNER;
+                CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = spawner.getSpawnedType();
-                price = multiplier * plugin.getNewDelayedSpawners().getInstantaneousWorth(spawner);
+                multiplier *= plugin.getSpawnerStackerHook().getStackSize(spawner);
+                price = multiplier * plugin.getSettings().getSpawnerPrice(spawnedType);
                 spawners.put(spawnedType, multiplier);
                 break;
             case CHEST:

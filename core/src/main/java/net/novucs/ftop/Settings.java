@@ -439,12 +439,6 @@ public class Settings {
     }
 
     private HikariConfig loadHikariConfig() {
-        try {
-            Class.forName("org.h2.Driver");
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-
         HikariConfig hikariConfig = new HikariConfig();
         hikariConfig.setJdbcUrl(getString("settings.database.jdbc-url", "jdbc:h2:./plugins/FactionsTop/database"));
         hikariConfig.setUsername(getString("settings.database.username", "root"));

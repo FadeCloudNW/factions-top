@@ -8,7 +8,6 @@ public enum RecalculateReason {
     BREAK,
     PLACE,
     EXPLODE,
-    CHEST,
-    DELAYED_SPAWNER;
+    CHEST
 
 }
