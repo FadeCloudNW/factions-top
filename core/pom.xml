@@ -53,7 +53,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>2.4.3</version>
+                <version>3.2.2</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -95,6 +95,12 @@
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.200</version>
+            <scope>compile</scope>
+        </dependency>
         <dependency>
             <groupId>net.novucs.ftop.hook</groupId>
             <artifactId>craftbukkit-1-7-r4</artifactId>

@@ -2,6 +2,7 @@ package net.novucs.ftop;
 
 import com.google.common.collect.Multimap;
 import net.novucs.ftop.command.*;
+import net.novucs.ftop.delayedspawners.DelayedSpawnerService;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChunkPos;
 import net.novucs.ftop.entity.ChunkWorth;
@@ -48,9 +49,12 @@ public final class FactionsTopPlugin extends JavaPlugin {
     private final Settings settings = new Settings(this);
     private final SignManager signManager = new SignManager(this);
     private final WorthManager worthManager = new WorthManager(this);
+    private final DelayedSpawnerService delayedSpawners = new DelayedSpawnerService(this);
+
     private final Set<PluginService> services = new HashSet<>(Arrays.asList(
             signManager,
             worthManager,
+            delayedSpawners,
             new GuiCommand(this),
             new RecalculateCommand(this),
             new ReloadCommand(this),
@@ -112,6 +116,10 @@ public final class FactionsTopPlugin extends JavaPlugin {
 
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
+    }
+
+    public DelayedSpawnerService getDelayedSpawners() {
+        return delayedSpawners;
     }
 
     public void setDatabaseManager(DatabaseManager databaseManager) {

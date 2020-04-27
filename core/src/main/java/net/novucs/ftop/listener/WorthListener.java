@@ -7,6 +7,7 @@ import net.novucs.ftop.RecalculateReason;
 import net.novucs.ftop.WorthType;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChestWorth;
+import net.novucs.ftop.entity.ChunkPos;
 import net.novucs.ftop.hook.event.*;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -29,10 +30,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class WorthListener extends BukkitRunnable implements Listener, PluginService {
 
@@ -63,17 +61,33 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockPlaceEvent event) {
+        if (event.getBlock().getState() instanceof CreatureSpawner) {
+            List<String> ignored = plugin.getSettings().getIgnoredFactionIds();
+            String factionAt = plugin.getFactionsHook().getFactionAt(event.getBlock());
+
+            if (!ignored.contains(factionAt))
+                plugin.getDelayedSpawners().add((CreatureSpawner) event.getBlock().getState());
+        }
+
         updateWorth(event.getBlock(), RecalculateReason.PLACE, false);
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(BlockBreakEvent event) {
         updateWorth(event.getBlock(), RecalculateReason.BREAK, true);
+
+        if (event.getBlock().getState() instanceof CreatureSpawner)
+            plugin.getDelayedSpawners().remove((CreatureSpawner) event.getBlock().getState());
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void updateWorth(EntityExplodeEvent event) {
-        event.blockList().forEach(block -> updateWorth(block, RecalculateReason.EXPLODE, true));
+        event.blockList().forEach(block -> {
+            updateWorth(block, RecalculateReason.EXPLODE, true);
+
+            if (block.getState() instanceof CreatureSpawner)
+                plugin.getDelayedSpawners().remove((CreatureSpawner) block.getState());
+        });
     }
 
     private void updateWorth(Block block, RecalculateReason reason, boolean negate) {
@@ -98,8 +112,7 @@ public class WorthListener extends BukkitRunnable implements Listener, PluginSer
                 worthType = WorthType.SPAWNER;
                 CreatureSpawner spawner = (CreatureSpawner) block.getState();
                 EntityType spawnedType = spawner.getSpawnedType();
-                multiplier *= plugin.getSpawnerStackerHook().getStackSize(spawner);
-                price = multiplier * plugin.getSettings().getSpawnerPrice(spawnedType);
+                price = multiplier * plugin.getDelayedSpawners().getInstantWorth(spawner);
                 spawners.put(spawnedType, multiplier);
                 break;
             case CHEST:

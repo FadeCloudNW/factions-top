@@ -92,12 +92,14 @@ public class TextCommand implements CommandExecutor, PluginService {
             if (!it.hasNext()) break;
 
             FactionWorth worth = it.next();
+            double potentialWorth = plugin.getDelayedSpawners(). getPotentialWorth(worth.getFactionId());
 
             Map<String, String> worthPlaceholders = new HashMap<>(placeholders);
             worthPlaceholders.put("{rank}", Integer.toString(spacer + i + 1));
             worthPlaceholders.put("{relcolor}", "" + ChatColor.COLOR_CHAR + getRelationColor(plugin, sender, worth.getFactionId()).getChar());
             worthPlaceholders.put("{faction}", worth.getName());
             worthPlaceholders.put("{worth:total}", plugin.getSettings().getCurrencyFormat().format(worth.getTotalWorth()));
+            worthPlaceholders.put("{worth:potential}", plugin.getSettings().getCurrencyFormat().format(potentialWorth));
             worthPlaceholders.put("{count:total:spawner}", plugin.getSettings().getCountFormat().format(worth.getTotalSpawnerCount()));
 
             String bodyMessage = insertPlaceholders(plugin.getSettings(), worth, replace(plugin.getSettings().getBodyMessage(), worthPlaceholders));

@@ -4,8 +4,8 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.massivecraft.factions.*;
 import com.massivecraft.factions.event.*;
-import com.massivecraft.factions.data.MemoryBoard;
-import com.massivecraft.factions.data.MemoryFactions;
+import com.massivecraft.factions.zcore.persist.MemoryBoard;
+import com.massivecraft.factions.zcore.persist.MemoryFactions;
 import net.novucs.ftop.entity.ChunkPos;
 import net.novucs.ftop.hook.event.*;
 import net.novucs.ftop.hook.event.FactionDisbandEvent;
@@ -129,23 +129,24 @@ public class Factions0106 extends FactionsHook {
         Faction faction = Board.getInstance().getFactionAt(event.getLocation());
         Multimap<String, ChunkPos> claims = HashMultimap.create();
         claims.put(faction.getId(), getChunkPos(event.getLocation()));
-        callEvent(new FactionClaimEvent(event.getFaction().getId(), claims));
+        callEvent(new FactionClaimEvent(event.getFaction().getId(), claims, true));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onClaim(LandUnclaimEvent event) {
         Multimap<String, ChunkPos> claims = HashMultimap.create();
         claims.put(event.getFaction().getId(), getChunkPos(event.getLocation()));
-        callEvent(new FactionClaimEvent(Factions.getInstance().getNone().getId(), claims));
+        callEvent(new FactionClaimEvent(Factions.getInstance().getNone().getId(), claims, false));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onClaim(LandUnclaimAllEvent event) {
         Multimap<String, ChunkPos> claims = HashMultimap.create();
-        for (FLocation location : event.getFaction().getClaimOwnership().keySet()) {
+
+        for (FLocation location : event.getClaims())
             claims.put(event.getFaction().getId(), getChunkPos(location));
-        }
-        callEvent(new FactionClaimEvent(Factions.getInstance().getNone().getId(), claims));
+
+        callEvent(new FactionClaimEvent(Factions.getInstance().getNone().getId(), claims, false));
     }
 
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

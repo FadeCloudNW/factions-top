@@ -214,7 +214,7 @@ public final class WorthManager implements PluginService {
         plugin.getPersistenceTask().queue(factionWorth);
     }
 
-    private void setSpawners(ChunkPos pos, Map<EntityType, Integer> spawners) {
+    public void setSpawners(ChunkPos pos, Map<EntityType, Integer> spawners) {
         // Do nothing if faction worth is null.
         FactionWorth factionWorth = getFactionWorth(pos);
         if (factionWorth == null) return;
@@ -237,14 +237,17 @@ public final class WorthManager implements PluginService {
     public void add(Chunk chunk, RecalculateReason reason, WorthType worthType, double worth,
                     Map<Material, Integer> materials, Map<EntityType, Integer> spawners) {
         // Do nothing if worth type is disabled or worth is nothing.
-        if (!plugin.getSettings().isEnabled(worthType) || worth == 0) {
+        if (!plugin.getSettings().isEnabled(worthType))
             return;
-        }
+
+        if (worth == 0 && worthType != WorthType.SPAWNER)
+            return;
 
         // Do nothing if faction worth is null.
         ChunkPos pos = ChunkPos.of(chunk);
         FactionWorth factionWorth = getFactionWorth(pos);
         if (factionWorth == null) return;
+
 
         orderedFactions.remove(factionWorth);
 
@@ -373,14 +376,11 @@ public final class WorthManager implements PluginService {
 
             CreatureSpawner spawner = (CreatureSpawner) blockState;
             EntityType spawnType = spawner.getSpawnedType();
-            int stackSize = plugin.getSpawnerStackerHook().getStackSize(spawner);
-            double blockPrice = plugin.getSettings().getSpawnerPrice(spawnType) * stackSize;
+            double blockPrice = plugin.getDelayedSpawners().getInstantWorth(spawner);
             worth += blockPrice;
 
-            if (blockPrice != 0) {
-                count = spawners.getOrDefault(spawnType, 0);
-                spawners.put(spawnType, count + stackSize);
-            }
+            count = spawners.getOrDefault(spawnType, 0);
+            spawners.put(spawnType, count + 1);
         }
 
         return worth;
@@ -527,8 +527,9 @@ public final class WorthManager implements PluginService {
      * @param factionId the ID of the faction to remove.
      */
     public void remove(String factionId) {
-        FactionWorth factionWorth = factions.remove(factionId);
-        orderedFactions.remove(factionWorth);
+        FactionWorth worth = getFactionWorth(factionId);
+        factions.remove(factionId);
+        orderedFactions.remove(worth);
         plugin.getPersistenceTask().queueDeletedFaction(factionId);
     }
 }
