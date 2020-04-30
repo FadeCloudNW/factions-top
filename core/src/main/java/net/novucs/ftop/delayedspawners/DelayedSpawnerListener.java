@@ -55,6 +55,9 @@ public class DelayedSpawnerListener implements Listener {
 		if (event.getAction() != Action.RIGHT_CLICK_BLOCK || event.getClickedBlock().getType() != Material.MOB_SPAWNER)
 			return;
 
+		if (event.getItem() != null && event.getItem().getType() != Material.AIR)
+			return;
+
 		NumberFormat fmt = NumberFormat.getCurrencyInstance(Locale.US);
 		double worth = spawnerService.getInstantWorth((CreatureSpawner) event.getClickedBlock().getState());
 		event.getPlayer().sendMessage(format(String.format("&e&l[!] &eThis spawner is worth %s", fmt.format(worth))));
