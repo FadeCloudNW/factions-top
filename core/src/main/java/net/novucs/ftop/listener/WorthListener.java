@@ -7,7 +7,6 @@ import net.novucs.ftop.RecalculateReason;
 import net.novucs.ftop.WorthType;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChestWorth;
-import net.novucs.ftop.entity.ChunkPos;
 import net.novucs.ftop.hook.event.*;
 import org.bukkit.Material;
 import org.bukkit.block.Block;

@@ -418,4 +418,5 @@ public final class FactionsTopPlugin extends JavaPlugin {
         services.forEach(PluginService::terminate);
         active = false;
     }
+
 }

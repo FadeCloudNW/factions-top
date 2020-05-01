@@ -5,7 +5,6 @@ import com.google.common.io.ByteArrayDataOutput;
 import com.google.common.io.ByteStreams;
 import net.novucs.ftop.entity.BlockPos;
 import net.novucs.ftop.entity.ChunkPos;
-import org.apache.commons.codec.binary.Base64;
 import org.bukkit.block.CreatureSpawner;
 import org.bukkit.entity.EntityType;
 
