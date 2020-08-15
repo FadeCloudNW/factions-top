@@ -82,9 +82,15 @@ public class DelayedSpawnerService implements PluginService {
 	}
 
 	public double getPotentialWorth(String factionId) {
-		return plugin.getWorthManager().getWorth(factionId).getSpawners().entrySet().stream()
-				.mapToDouble(entry -> plugin.getSettings().getSpawnerPrice(entry.getKey()) * entry.getValue())
-				.sum();
+		try {
+			return plugin.getWorthManager().getWorth(factionId).getSpawners().entrySet().stream()
+					.mapToDouble(entry -> plugin.getSettings().getSpawnerPrice(entry.getKey()) * entry.getValue())
+					.sum();
+		} catch (Exception ex) {
+			getPlugin().getLogger().severe("Shit went down when trying to get potential worth...");
+			ex.printStackTrace();
+			return -1;
+		}
 	}
 
 	public FactionsTopPlugin getPlugin() {

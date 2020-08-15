@@ -92,7 +92,7 @@ public class TextCommand implements CommandExecutor, PluginService {
             if (!it.hasNext()) break;
 
             FactionWorth worth = it.next();
-            double potentialWorth = plugin.getDelayedSpawners(). getPotentialWorth(worth.getFactionId());
+            double potentialWorth = plugin.getDelayedSpawners().getPotentialWorth(worth.getFactionId());
 
             Map<String, String> worthPlaceholders = new HashMap<>(placeholders);
             worthPlaceholders.put("{rank}", Integer.toString(spacer + i + 1));
